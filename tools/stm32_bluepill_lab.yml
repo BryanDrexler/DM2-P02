@@ -1,0 +1,119 @@
+# WireViz diagram — STM32 Blue Pill lab wiring
+# Sesión 2 — ADC + UART — DM2 IOR444 — UdeSA
+# Usage:  wireviz stm32_bluepill_lab.yml
+# Output: stm32_bluepill_lab.svg / .png / .html / .bom.tsv
+
+connectors:
+  # ── Blue Pill (STM32F103C8) ─────────────────────────────────
+  BluePill:
+    type: STM32F103C8
+    subtype: Blue Pill
+    pincount: 5
+    pins:
+      - 3V3
+      - GND1
+      - GND2
+      - PA0
+      - PA9
+      - PA10
+    pinlabels:
+      - "3V3"
+      - "GND (pot)"
+      - "GND (uart)"
+      - "PA0 (ADC_IN0)"
+      - "PA9 (UART1_TX)"
+      - "PA10 (UART1_RX)"
+    pincount: 6
+    notes: "STM32F103C8T6 — 72 MHz Cortex-M3\nADC 12-bit, 1 MSPS"
+
+  # ── Potentiometer 10 kΩ ─────────────────────────────────────
+  Potentiometer:
+    type: Potentiometer
+    subtype: 10kΩ linear
+    pincount: 3
+    pins:
+      - VCC
+      - Wiper
+      - GND
+    pinlabels:
+      - "VCC (+3.3 V)"
+      - "Wiper (out)"
+      - "GND"
+    notes: "10 kΩ linear pot\nfor ADC input demo"
+
+  # ── USB–Serial adapter ───────────────────────────────────────
+  USBSerial:
+    type: USB-Serial Adapter
+    subtype: CH340 / CP2102 / FT232
+    pincount: 3
+    pins:
+      - GND
+      - RX
+      - TX
+    pinlabels:
+      - "GND"
+      - "RX (← data in)"
+      - "TX (→ data out)"
+    notes: "Set to 3.3 V logic!\nDo NOT connect 5 V VCC to BluePill."
+
+cables:
+  # ── Potentiometer power: Red=VCC, Black=GND ─────────────────
+  W_POT_PWR:
+    category: bundle
+    length: 0.1 m
+    gauge: 0.25 mm2
+    colors: [RD, BK]
+    wirecount: 2
+
+  # ── Potentiometer wiper signal: Yellow ───────────────────────
+  W_POT_SIG:
+    category: bundle
+    length: 0.1 m
+    gauge: 0.25 mm2
+    colors: [YE]
+    wirecount: 1
+
+  # ── UART bundle: Green=TX, White=RX, Black=GND ───────────────
+  W_UART:
+    category: bundle
+    length: 0.15 m
+    gauge: 0.25 mm2
+    colors: [GN, WH, BK]
+    wirecount: 3
+
+connections:
+  # Potentiometer VCC ← BluePill 3V3
+  -
+    - BluePill: 3V3
+    - W_POT_PWR: 1
+    - Potentiometer: VCC
+
+  # Potentiometer GND ← BluePill GND
+  -
+    - BluePill: GND1
+    - W_POT_PWR: 2
+    - Potentiometer: GND
+
+  # Potentiometer Wiper → BluePill PA0 (ADC)
+  -
+    - Potentiometer: Wiper
+    - W_POT_SIG: 1
+    - BluePill: PA0
+
+  # UART TX: BluePill PA9 (TX) → USB-Serial RX
+  -
+    - BluePill: PA9
+    - W_UART: 1
+    - USBSerial: RX
+
+  # UART RX: BluePill PA10 (RX) ← USB-Serial TX
+  -
+    - BluePill: PA10
+    - W_UART: 2
+    - USBSerial: TX
+
+  # UART GND shared
+  -
+    - BluePill: GND2
+    - W_UART: 3
+    - USBSerial: GND

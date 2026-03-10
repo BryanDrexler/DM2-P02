@@ -1,0 +1,9 @@
+Id	Description	Qty	Unit	Designators
+1	Connector, Potentiometer, 10kΩ linear, 3 pins	1		Potentiometer
+2	Connector, STM32F103C8, Blue Pill, 6 pins	1		BluePill
+3	Connector, USB-Serial Adapter, CH340 / CP2102 / FT232, 3 pins	1		USBSerial
+4	Wire, 0.25 mm², BK	0.25	m	W_POT_PWR, W_UART
+5	Wire, 0.25 mm², GN	0.15	m	W_UART
+6	Wire, 0.25 mm², RD	0.1	m	W_POT_PWR
+7	Wire, 0.25 mm², WH	0.15	m	W_UART
+8	Wire, 0.25 mm², YE	0.1	m	W_POT_SIG
