@@ -160,13 +160,13 @@ Implementar `medir_ruido()` en `src/main.c`. Anotar aquí los resultados:
 
 | Escenario | Varianza (LSB²) |
 |-----------|:--------------:|
-| Pot fijo, cable corto | ___ |
-| Pot fijo, mano en el cable | ___ |
-| Mano en GND + cable | ___ |
+| Pot fijo, cable corto | 4.7 |
+| Pot fijo, mano en el cable | 6.8 |
+| Mano en GND + cable | 3.7 |
 
 ¿Por qué tocar GND con la mano reduce el ruido?
 
-`respuesta:` ___
+`respuesta:` Porque al tocar GND con la mano estamos aumentando la resistencia del GND. Eso genera que el ruido se disipe a traves de la mano, bajando la varianza.
 
 ---
 
@@ -185,11 +185,11 @@ Divisor A (bajo ruido, alto consumo):       Divisor B (bajo consumo, más ruido)
 
 | Divisor | Varianza (LSB²) |
 |---------|:--------------:|
-| A (2 kΩ total) | ___ |
-| B (200 kΩ total) | ___ |
+| A (2 kΩ total) | 1.9 |
+| B (200 kΩ total) | 1.0 |
 
 ¿Le alcanza el sampling time de 28.5 ciclos al divisor B?
-Rs = 100 kΩ → t_min = 9 × (100 kΩ × 4 pF) = ___ μs
+Rs = 100 kΩ → t_min = 9 × (100 kΩ × 4 pF) = 3.6 μs
 
 ---
 
@@ -209,9 +209,9 @@ Agregar un filtro RC entre el divisor A y PA0:
 
 | Condición | Varianza (LSB²) |
 |-----------|:--------------:|
-| Sin filtro (Act. 5) | ___ |
-| Con filtro RC | ___ |
-| Reducción | ___ % |
+| Sin filtro (Act. 5) | 4.7 |
+| Con filtro RC | 0.2 |
+| Reducción | 96 % |
 
 ---
 

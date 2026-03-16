@@ -78,7 +78,14 @@ static uint16_t adc_oversample_16(void)
      * ruido térmico independiente, lo que permite el promediado estadístico.
      */
 
-    return 0; /* TODO: reemplazar con la implementación */
+    //return 0; /* TODO: reemplazar con la implementación */
+    uint32_t acc = 0;
+    for (int i = 0; i < 16; i++) {
+        acc += adc_read_raw();
+        //sin delay: muestras consecutivas
+    }
+    return (uint16_t)(acc / 4); /* dividir por 4 = desplazar 2 bits */
+    //return 0;
 }
 
 /* ── adc_read_filtered ───────────────────────────────────────────────────── */
@@ -111,7 +118,11 @@ uint16_t adc_read_filtered(void)
      *   last_sat = 1; (y ponerlo a 0 cuando _status == ADC_OK)
      */
 
-    return 0; /* TODO: reemplazar con la implementación */
+    //return 0; /* TODO: reemplazar con la implementación */
+    uint16_t val = adc_oversample_16();
+    _status = ADC_OK;
+    return val;
+
 }
 
 /* ── diag_update ─────────────────────────────────────────────────────────── */

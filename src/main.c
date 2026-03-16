@@ -68,7 +68,6 @@ int main(void)
     // /* Descomentar para calcular media, varianza, min, max                  */
     medir_ruido();
 
-    char buf[16];
 
     /* ── Acts. 9–11 — Loop principal ───────────────────────────────────── */
     while (1) {
@@ -83,7 +82,7 @@ int main(void)
          * No agregar HAL_Delay() aquí — el loop debe correr tan rápido
          * como sea posible para maximizar la tasa de muestreo.
          */
-        HAL_Delay(1);   /* placeholder — eliminar cuando implementes el TODO */
+        //HAL_Delay(1);   /* placeholder — eliminar cuando implementes el TODO */
     }
 }
 
@@ -115,10 +114,12 @@ void stream_adc(void)
      */
     char buf[16];
     for (int i = 0; i < N_MUESTRAS; i++) {
-        uint16_t val = 1; // adc_read_raw();
+        //uint16_t val = adc_read_raw();
+        uint16_t val = adc_oversample_16();
         snprintf(buf, sizeof(buf), "%u\r\n", val);
         HAL_UART_Transmit(&huart1, (uint8_t*)buf, strlen(buf), 100);
-        // HAL_Delay(1);
+        //HAL_Delay(1);
+        HAL_Delay(5);
     }
 }
 
@@ -156,8 +157,8 @@ void medir_ruido(void)
      *   var_mano_gnd   = ___   (mano tocando GND → ¿por qué baja el ruido?)
      */
 
-    u_int32_t suma = 0;
-    u_int64_t suma2 = 0;
+    uint32_t suma = 0;
+    uint64_t suma2 = 0;
     uint16_t min_val = 4095, max_val = 0;
 
     for (int i = 0; i < N_MUESTRAS; i++) {
@@ -168,13 +169,12 @@ void medir_ruido(void)
         if (val > max_val) max_val = val;
     }
 
-    u_int32_t media = suma / N_MUESTRAS;
+    uint32_t media = suma / N_MUESTRAS;
     int32_t var = (int32_t)(suma2 / N_MUESTRAS) - (int32_t)(media * media);
 
     char buf[64];
     snprintf(buf, sizeof(buf), "media=%lu var=%ld min=%u max=%u\r\n",
              media, var, min_val, max_val);
-    HAL_UART_Transmit(&huart1, (uint8_t*)buf, strlen(buf), 100);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -271,7 +271,7 @@ static void MX_USART1_UART_Init(void)
     __HAL_RCC_USART1_CLK_ENABLE();
 
     huart1.Instance          = USART1;
-    huart1.Init.BaudRate     = 921600;
+    huart1.Init.BaudRate     = 115200;
     huart1.Init.WordLength   = UART_WORDLENGTH_8B;
     huart1.Init.StopBits     = UART_STOPBITS_1;
     huart1.Init.Parity       = UART_PARITY_NONE;

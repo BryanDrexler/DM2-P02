@@ -74,3 +74,6 @@ void diag_update(uint16_t val);
  *        Llamar en cada iteración del loop principal (Act. 11).
  */
 void diag_report_if_due(void);
+
+
+//uint16_t adc_oversample_16(void);
