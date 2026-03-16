@@ -71,6 +71,7 @@ int main(void)
 
     /* ── Acts. 9–11 — Loop principal ───────────────────────────────────── */
     while (1) {
+        stream_adc();
         /* TODO (Act. 11): Una vez implementadas adc_read_filtered(),
          * diag_update() y diag_report_if_due() en adc.c, reemplazar
          * el cuerpo de este loop con:
@@ -83,9 +84,10 @@ int main(void)
          * como sea posible para maximizar la tasa de muestreo.
          */
 
-        //uint16_t v = adc_read_filtered();
-        // diag_update(v);
-        // diag_report_if_due();
+        uint16_t v = adc_read_filtered();
+        diag_update(v);
+        diag_report_if_due();
+        HAL_Delay(10); //cambiarlo aumenta el rango
     }
 }
 
@@ -115,12 +117,12 @@ void stream_adc(void)
      *   - Pot al máximo  → valores cerca de 4095
      *   - Pot fijo       → ¿es estable? ¿cuánto varía?
      */
-    char buf[16];
+    char buf[32];
     for (int i = 0; i < N_MUESTRAS; i++) {
         uint16_t val = adc_read_raw();
         // uint16_t val = adc_oversample_16();
         snprintf(buf, sizeof(buf), "%u\r\n", val);
-        HAL_UART_Transmit(&huart1, (uint8_t*)buf, strlen(buf), 100);
+        HAL_UART_Transmit(&huart1, (uint8_t*)buf, strlen(buf), 10);
         // HAL_Delay(1);
         // HAL_Delay(5);
     }

@@ -83,7 +83,7 @@ static uint16_t adc_oversample_16(void)
         acc += adc_read_raw();
         //sin delay: muestras consecutivas
     }
-    return (uint16_t)(acc / 4); /* dividir por 4 = desplazar 2 bits */
+    return (uint16_t)(acc / 4); 
 }
 
 /* ── adc_read_filtered ───────────────────────────────────────────────────── */

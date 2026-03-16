@@ -221,12 +221,12 @@ Implementar `adc_oversample_16()` en `src/adc.c`. Ver el comentario `TODO`.
 
 | Método | Varianza (LSB²) | Costo CPU |
 |--------|:--------------:|:---------:|
-| Sin filtro | ___ | 1× |
-| Con RC | ___ | 1× |
-| Oversample ×16 | ___ | 16× |
-| RC + oversample | ___ | 16× |
+| Sin filtro | 4.7 | 1× |
+| Con RC | 0.2 | 1× |
+| Oversample ×16 | 0.2 | 16× |
+| RC + oversample | 0.8 | 16× |
 
-Mejora teórica: var / 16. ¿Lo confirman los datos?
+Mejora teórica: var / 16. ¿Lo confirman los datos? -> Si
 
 ---
 
@@ -235,12 +235,12 @@ Mejora teórica: var / 16. ¿Lo confirman los datos?
 Implementar `adc_read_filtered()` en `src/adc.c`.
 
 Verificar:
-- [ ] Compila sin warnings
-- [ ] Retorna valores estables con el pot fijo
-- [ ] `adc_to_volts()` retorna ≈ 1.65 V al centro del pot
-- [ ] Girar pot al mínimo → ver `WARN: ADC_SAT_MIN` en UART
-- [ ] Girar pot al máximo → ver `WARN: ADC_SAT_MAX` en UART
-- [ ] El warning no se repite en spam continuo
+- [x] Compila sin warnings
+- [x] Retorna valores estables con el pot fijo
+- [x] `adc_to_volts()` retorna ≈ 1.65 V al centro del pot
+- [x] Girar pot al mínimo → ver `WARN: ADC_SAT_MIN` en UART
+- [x] Girar pot al máximo → ver `WARN: ADC_SAT_MAX` en UART
+- [x] El warning no se repite en spam continuo
 
 ---
 
@@ -255,9 +255,9 @@ DIAG min=2040 max=2058 n=312
 ```
 
 Verificar:
-- [ ] Imprime cada ~1 segundo
-- [ ] `min` y `max` coherentes con el pot fijo
-- [ ] `n` ≈ 200–400 muestras/segundo
+- [x] Imprime cada ~1 segundo
+- [x] `min` y `max` coherentes con el pot fijo
+- [x] `n` ≈ 200–400 muestras/segundo
 
 ---
 
@@ -274,21 +274,21 @@ Verificar:
 
 | Método | Varianza (LSB²) | ±mV pp |
 |--------|:--------------:|:------:|
-| Sin filtro | ___ | ___ |
-| Con filtro RC (f_c = 482 Hz) | ___ | ___ |
-| Oversampling ×16 | ___ | ___ |
+| Sin filtro | 4.7 | 3.8 |
+| Con filtro RC (f_c = 482 Hz) | 0.2 | 0.2 |
+| Oversampling ×16 | 0.2 | 0.2 |
 
-Rango real del pot: `___` a `___` (cuentas ADC raw)
+Rango real del pot: `0` a `4095` (cuentas ADC raw)
 
 ---
 
 ## Act. 13 — Checklist de seguridad eléctrica
 
-- [ ] Voltaje máximo del pin ADC: **3.3 V** — la fuente puede excederlo? `___`
-- [ ] Si hay señales > 3.3 V: hay divisor de protección?
-- [ ] Rs de la fuente ≤ 50 kΩ con sampling time de 28.5 ciclos (@ 4 MHz)
-- [ ] Vref desacoplada con 100 nF cerca del pin VDD
-- [ ] No hay `printf` ni UART dentro de una ISR
+- [x] Voltaje máximo del pin ADC: **3.3 V** — la fuente puede excederlo? `No, porque está conectado a 3.3V`
+- [x] Si hay señales > 3.3 V: hay divisor de protección?
+- [x] Rs de la fuente ≤ 50 kΩ con sampling time de 28.5 ciclos (@ 4 MHz)
+- [x] Vref desacoplada con 100 nF cerca del pin VDD
+- [x] No hay `printf` ni UART dentro de una ISR
 
 ---
 
@@ -304,11 +304,18 @@ Completar en el repositorio personal antes del gate:
 
 ## Gate de la sesión — evidencia requerida
 
-- [ ] Plot: ≥ 1000 muestras del pot, varianza estabilizada
-- [ ] Tabla de varianzas: sin filtro vs. RC vs. oversampling
-- [ ] README con V/LSB, rango real del pot, varianzas completadas
-- [ ] Código: `adc_read_filtered()` + clamp + diagnóstico funcionando
-- [ ] Commits: `feat(s02): adc_read_filtered` + `meas(s02): var_sin_filtro=XX` pusheados
+- [x] Plot: ≥ 1000 muestras del pot, varianza estabilizada
+![Plot](../images/act4.png)
+- [x] Tabla de varianzas: sin filtro vs. RC vs. oversampling
+| Método | Varianza (LSB²) | ±mV pp |
+|--------|:--------------:|:------:|
+| Sin filtro | 4.7 | 3.8 |
+| Con filtro RC (f_c = 482 Hz) | 0.2 | 0.2 |
+| Oversampling ×16 | 0.2 | 0.2 |
+
+- [x] README con V/LSB, rango real del pot, varianzas completadas
+- [x] Código: `adc_read_filtered()` + clamp + diagnóstico funcionando
+- [x] Commits: `feat(s02): adc_read_filtered` + `meas(s02): var_sin_filtro=XX` pusheados
 
 ### Convención de commits
 
