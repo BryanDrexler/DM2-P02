@@ -82,7 +82,10 @@ int main(void)
          * No agregar HAL_Delay() aquí — el loop debe correr tan rápido
          * como sea posible para maximizar la tasa de muestreo.
          */
-        //HAL_Delay(1);   /* placeholder — eliminar cuando implementes el TODO */
+
+        //uint16_t v = adc_read_filtered();
+        // diag_update(v);
+        // diag_report_if_due();
     }
 }
 
@@ -114,12 +117,12 @@ void stream_adc(void)
      */
     char buf[16];
     for (int i = 0; i < N_MUESTRAS; i++) {
-        //uint16_t val = adc_read_raw();
-        uint16_t val = adc_oversample_16();
+        uint16_t val = adc_read_raw();
+        // uint16_t val = adc_oversample_16();
         snprintf(buf, sizeof(buf), "%u\r\n", val);
         HAL_UART_Transmit(&huart1, (uint8_t*)buf, strlen(buf), 100);
-        //HAL_Delay(1);
-        HAL_Delay(5);
+        // HAL_Delay(1);
+        // HAL_Delay(5);
     }
 }
 
@@ -251,7 +254,7 @@ static void MX_ADC1_Init(void)
     hadc1.Instance                   = ADC1;
     hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
-    // hadc1.Init.DiscontinuousConvMode = DISABLE;
+    hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 1;
@@ -277,6 +280,6 @@ static void MX_USART1_UART_Init(void)
     huart1.Init.Parity       = UART_PARITY_NONE;
     huart1.Init.Mode         = UART_MODE_TX_RX;
     huart1.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    // huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+    huart1.Init.OverSampling = UART_OVERSAMPLING_16;
     HAL_UART_Init(&huart1);
 }

@@ -78,14 +78,12 @@ static uint16_t adc_oversample_16(void)
      * ruido térmico independiente, lo que permite el promediado estadístico.
      */
 
-    //return 0; /* TODO: reemplazar con la implementación */
     uint32_t acc = 0;
     for (int i = 0; i < 16; i++) {
         acc += adc_read_raw();
         //sin delay: muestras consecutivas
     }
     return (uint16_t)(acc / 4); /* dividir por 4 = desplazar 2 bits */
-    //return 0;
 }
 
 /* ── adc_read_filtered ───────────────────────────────────────────────────── */
@@ -120,7 +118,29 @@ uint16_t adc_read_filtered(void)
 
     //return 0; /* TODO: reemplazar con la implementación */
     uint16_t val = adc_oversample_16();
-    _status = ADC_OK;
+    static uint8_t last_sat = 0;
+
+    if (val <= ADC_CLAMP_MIN){
+        _status = ADC_SATURADO_MIN;
+        if (!last_sat){
+            char msg[] = "WAR: ADC_SAT_MIN\r\n";
+            HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 10);
+        }
+        last_sat=1;
+    } else if (val >= ADC_CLAMP_MAX)
+    {
+        _status = ADC_SATURADO_MAX;
+        if (!last_sat){
+            char msg[] = "WAR: ADC_SAT_MAX\r\n";
+            HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 10);
+        }
+        last_sat=1;
+    }
+    else{
+        _status = ADC_OK;
+        last_sat = 0;
+    }
+    
     return val;
 
 }
@@ -137,6 +157,10 @@ void diag_update(uint16_t val)
      *
      * Esta función debe ser rápida (sin UART, sin delays).
      */
+
+    if (val < diag_min) diag_min = val;
+    if (val > diag_max) diag_max = val;
+    diag_count++;
 }
 
 /* ── diag_report_if_due ──────────────────────────────────────────────────── */
@@ -163,4 +187,21 @@ void diag_report_if_due(void)
      *   Si max - min > 200 con el pot fijo → problema eléctrico (GND ruidoso,
      *   cable flotante, Vref con ripple)
      */
+
+    uint32_t now = HAL_GetTick();
+
+    if (now - diag_last_report >= 1000) {
+        char buf[64];
+
+        snprintf(buf, sizeof(buf), "DIAG min=%u max=%u n=%lu\r\n", 
+                 diag_min, diag_max, diag_count);
+
+        HAL_UART_Transmit(&huart1, (uint8_t*)buf, (uint16_t)strlen(buf), 50);
+
+        diag_min = 16380;
+        diag_max = 0;
+        diag_count = 0;
+        
+        diag_last_report = now;
+    }
 }
