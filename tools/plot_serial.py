@@ -100,6 +100,7 @@ def update(_frame):
     ax_hist.set_xlabel("ADC (LSB)")
     ax_hist.set_ylabel("Frecuencia")
     ax_hist.grid(True, alpha=0.3)
+    fig.canvas.flush_events()
 
     return line, stats_text
 

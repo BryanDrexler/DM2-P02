@@ -53,7 +53,7 @@ Al finalizar esta práctica vas a poder:
 
 ```bash
 # Compilar
-pio run
+pio run  #~/miniconda3/bin/pio run
 
 # Compilar + flashear
 pio run --target upload

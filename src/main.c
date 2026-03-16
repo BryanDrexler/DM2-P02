@@ -57,16 +57,18 @@ int main(void)
     /* ── Act. 3 — Verificar UART ────────────────────────────────────────── */
     /* Debe aparecer "hello" en el terminal serie antes de continuar.        */
     /* Sin UART funcionando, las actividades 4–11 son ciegas.               */
-    char hello[] = "hello\r\n";
-    HAL_UART_Transmit(&huart1, (uint8_t*)hello, strlen(hello), 100);
+    //char hello[] = "hello\r\n";
+    //HAL_UART_Transmit(&huart1, (uint8_t*)hello, strlen(hello), 100);
 
     /* ── Act. 4 — Stream de muestras ───────────────────────────────────── */
     /* Descomentar para enviar N_MUESTRAS y visualizar en plot_serial.py    */
-    /* stream_adc(); */
+    stream_adc();
 
-    /* ── Act. 5 — Medir ruido ───────────────────────────────────────────── */
-    /* Descomentar para calcular media, varianza, min, max                  */
-    /* medir_ruido(); */
+    // /* ── Act. 5 — Medir ruido ───────────────────────────────────────────── */
+    // /* Descomentar para calcular media, varianza, min, max                  */
+    medir_ruido();
+
+    char buf[16];
 
     /* ── Acts. 9–11 — Loop principal ───────────────────────────────────── */
     while (1) {
@@ -111,6 +113,13 @@ void stream_adc(void)
      *   - Pot al máximo  → valores cerca de 4095
      *   - Pot fijo       → ¿es estable? ¿cuánto varía?
      */
+    char buf[16];
+    for (int i = 0; i < N_MUESTRAS; i++) {
+        uint16_t val = 1; // adc_read_raw();
+        snprintf(buf, sizeof(buf), "%u\r\n", val);
+        HAL_UART_Transmit(&huart1, (uint8_t*)buf, strlen(buf), 100);
+        // HAL_Delay(1);
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -146,6 +155,26 @@ void medir_ruido(void)
      *   var_mano_cable = ___   (mano tocando el cable del ADC)
      *   var_mano_gnd   = ___   (mano tocando GND → ¿por qué baja el ruido?)
      */
+
+    u_int32_t suma = 0;
+    u_int64_t suma2 = 0;
+    uint16_t min_val = 4095, max_val = 0;
+
+    for (int i = 0; i < N_MUESTRAS; i++) {
+        uint16_t val = adc_read_raw();
+        suma += val;
+        suma2 += (uint64_t)val * val;
+        if (val < min_val) min_val = val;
+        if (val > max_val) max_val = val;
+    }
+
+    u_int32_t media = suma / N_MUESTRAS;
+    int32_t var = (int32_t)(suma2 / N_MUESTRAS) - (int32_t)(media * media);
+
+    char buf[64];
+    snprintf(buf, sizeof(buf), "media=%lu var=%ld min=%u max=%u\r\n",
+             media, var, min_val, max_val);
+    HAL_UART_Transmit(&huart1, (uint8_t*)buf, strlen(buf), 100);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -222,7 +251,7 @@ static void MX_ADC1_Init(void)
     hadc1.Instance                   = ADC1;
     hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
-    hadc1.Init.DiscontinuousConvMode = DISABLE;
+    // hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 1;
@@ -242,12 +271,12 @@ static void MX_USART1_UART_Init(void)
     __HAL_RCC_USART1_CLK_ENABLE();
 
     huart1.Instance          = USART1;
-    huart1.Init.BaudRate     = 115200;
+    huart1.Init.BaudRate     = 921600;
     huart1.Init.WordLength   = UART_WORDLENGTH_8B;
     huart1.Init.StopBits     = UART_STOPBITS_1;
     huart1.Init.Parity       = UART_PARITY_NONE;
     huart1.Init.Mode         = UART_MODE_TX_RX;
     huart1.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+    // huart1.Init.OverSampling = UART_OVERSAMPLING_16;
     HAL_UART_Init(&huart1);
 }
